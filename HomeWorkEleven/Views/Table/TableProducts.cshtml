@@ -1,0 +1,224 @@
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using System.Text.Json
+@using System.Text.Encodings.Web
+@using HomeWorkEleven.JSONSettings.Converter
+@model List<ProductModel>;
+@{
+    Layout = "~/Views/Table/_Layout.cshtml";
+}
+<div class="text-center">
+    <h2 class="display-4">Products</h2>
+
+    <table class="table table-bordered">
+        <thead>
+        <tr class="table-primary">
+            <th scope="col">id</th>
+            <th scope="col">Название</th>
+            <th scope="col">Описание</th>
+            <th scope="col">Цена за штуку</th>
+            <th scope="col">Количество</th>
+            <th scope="col">Действия</th>
+        </tr>
+        </thead>
+        <tbody id="BODY">
+        @foreach (var productModel in Model)
+        {
+            <tr id="productRow_@productModel.Id">
+                <td>@productModel.Id</td>
+                <td>
+                    <div id="Title_@productModel.Id">@productModel.Title</div>
+                </td>
+                <td>
+                    <div id="Description_@productModel.Id"> @productModel.Description</div>
+                </td>
+                <td>
+                    <div id="Price_@productModel.Id">
+                        @(JsonSerializer.Serialize(productModel.Price, new JsonSerializerOptions
+                        {
+                            Converters = { new DoubleJsonConverter() },
+                            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                        }).Trim('"'))
+                    </div>
+                </td>
+                <td>
+                    <div id="Count_@productModel.Id"> @productModel.Count</div>
+                </td>
+                <td>
+                    <button id="edit_button_@productModel.Id" onclick="onEditClick(@productModel.Id)"
+                            class="editButton">
+                        ✎
+                    </button>
+
+                    <button id="DeleteButton_@productModel.Id" class="btn btn-danger me-0"
+                            onclick="DeleteButton(@productModel.Id)">
+                        ⌫
+                    </button>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+</div>
+<div class="container">
+    <h3>Создать Продукт</h3>
+    <form class="right-corner-form">
+        Product Title:<br>
+        <input type="text" name="Title" id="Title"><br>
+        Product Description:<br>
+        <input type="text" name="Description" id="Description"><br>
+        Price:<br>
+        <input type="number" name="Price" id="Price"><br>
+        Count:<br>
+        <input type="number" name="Count" id="Count"><br>
+        <button id="createButton" type="button" class="btn btn-primary me-3" onclick="Create()">Create</button>
+    </form>
+</div>
+<script>
+    function onEditClick(i) {
+        createInput(i, "Title");
+        createInput(i, "Description");
+        createInput(i, "Price");
+        createInput(i, "Count");
+
+        let editButton = document.getElementById(`edit_button_${i}`);
+
+        let sendButton = document.createElement("button");
+        sendButton.id = `send_button_${i}`;
+        sendButton.innerText = "✓";
+        sendButton.onclick = () => { Update(i); }
+
+        editButton.replaceWith(sendButton);
+    }
+    function createInput(i, elementName) {
+        let elementText = document.getElementById(`${elementName}_${i}`);
+        let elementInput = document.createElement("input");
+        elementInput.id = `${elementName}_input_${i}`;
+        elementInput.value = elementText.innerText;
+        elementText.innerHTML = "";
+        elementText.replaceWith(elementInput);
+    }
+    function getProduct(id) {
+        let titleInput = document.getElementById(`Title_input_${id}`);
+        let title = titleInput.value;
+        let DescriptionInput = document.getElementById(`Description_input_${id}`);
+        let description = DescriptionInput.value;
+        let PriceInput = document.getElementById(`Price_input_${id}`);
+        let price = PriceInput.value;
+        let CountInput = document.getElementById(`Count_input_${id}`);
+        let count = CountInput.value;
+        return { title, description, price, count };
+    }
+
+    //TODO: Сделано операция Delete
+    async function DeleteButton(id) {
+        try {
+            const response = await fetch(`DeleteProduct/${id}`, {
+                method: "DELETE",
+                body: `id=${id}`
+
+            });
+            if (response.ok) {
+                // Product successfully deleted, update the table
+                const rowToRemove = document.getElementById(`productRow_${id}`);
+                rowToRemove.remove();
+            }
+        } catch (error) {
+            // Handle any errors
+            console.error('Error deleting product:', error);
+        }
+    }
+    //TODO:Сделать Update
+    async function Update(id) {
+        let updatedProduct = getProduct(id);
+        let response = await fetch(`UpdateProduct/${id}`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(updatedProduct)
+        });
+        if (response.ok) {
+            createDiv(id, "Title");
+            createDiv(id, "Description");
+            createDiv(id, "Price");
+            createDiv(id, "Count");
+            let sendButton = document.getElementById(`send_button_${id}`);
+            let editButton = document.createElement("button");
+            editButton.id = `edit_button_${id}`;
+            editButton.innerText = "✎";
+            editButton.onclick = () => { onEditClick(id); }
+            sendButton.replaceWith(editButton);
+        }
+    }
+    function createDiv(id, elementName) {
+        let elementText = document.getElementById(`${elementName}_input_${id}`);
+        let elementInput = document.createElement("div");
+        elementInput.id = `${elementName}_${id}`;
+        elementInput.innerText = elementText.value;
+        elementText.innerHTML = "";
+        elementText.replaceWith(elementInput);
+    }
+    //TODO:Create
+    async function Create() {
+        //await event.preventDefault();
+        let title = document.getElementById(`Title`).value;
+        let description = document.getElementById(`Description`).value;
+        let price = document.getElementById(`Price`).value;
+        let count = document.getElementById(`Count`).value;
+        let product = {
+            Title: title,
+            Description: description,
+            Price: price,
+            Count: count,
+        };
+        let response = await fetch(`CreateProduct`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(product)
+        });
+        if (response.ok) {
+            let newProduct = await response.json();
+            await createTd(newProduct);
+
+        }
+
+    }
+    async function createTd(newProduct) {
+        let newProductRow = document.createElement('tr');
+        newProductRow.id = 'productRow_' + newProduct.id;
+
+        let idCell = document.createElement('td');
+        idCell.textContent = newProduct.id;
+        await newProductRow.appendChild(idCell);
+
+        let titleCell = document.createElement('td');
+        titleCell.innerHTML = '<div id="Title_' + newProduct.id + '">' + newProduct.title + '</div>';
+        await newProductRow.appendChild(titleCell);
+
+        let descriptionCell = document.createElement('td');
+        descriptionCell.innerHTML = '<div id="Description_' + newProduct.id + '">' + newProduct.description + '</div>';
+        await newProductRow.appendChild(descriptionCell);
+
+        let priceCell = document.createElement('td');
+        priceCell.innerHTML = '<div id="Price_' + newProduct.id + '">' + newProduct.price + '</div>';
+        await newProductRow.appendChild(priceCell);
+
+        let countCell = document.createElement('td');
+        countCell.innerHTML = '<div id="Count_' + newProduct.id + '">' + newProduct.count + '</div>';
+        await newProductRow.appendChild(countCell);
+
+        let actionsCell = document.createElement('td');
+        actionsCell.innerHTML = '<button id="edit_button_' + newProduct.id + '" onclick="onEditClick(' + newProduct.id + ')" class="editButton">✎</button>' +
+            '<button id="DeleteButton_' + newProduct.id + '" class="btn btn-danger me-0" onclick="DeleteButton(' + newProduct.id + ')">⌫</button>';
+        await newProductRow.appendChild(actionsCell);
+
+        // Найдите таблицу и добавьте новую строку в конец таблицы
+        let productTable = document.querySelector(`tbody`);
+        await productTable.appendChild(newProductRow);
+
+    }
+
+</script>

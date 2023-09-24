@@ -1,0 +1,16 @@
+﻿
+<form  method="post">
+    <!-- Email input -->
+    <div class="form-outline mb-2">
+        <input type="text" name="login" placeholder="Enter a Login" id="login" class="form-control" style="width: min-content"/>
+        <label class="form-label" for="login"></label>
+    </div>
+
+    <!-- Password input -->
+    <div class="form-outline mb-4">
+        <input type="password" placeholder="Enter a Password" name="password" id="password" class="form-control" style="width: min-content"/>
+        <label class="form-label" for="password"></label>
+    </div>
+    <!-- Submit button -->
+    <button type="submit" class="btn btn-primary btn-block mb-4" asp-controller="Authorization" asp-action="Authorize">Sign in</button>
+</form>

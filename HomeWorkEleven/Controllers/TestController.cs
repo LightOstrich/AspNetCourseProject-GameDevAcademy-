@@ -1,5 +1,7 @@
 ﻿using HomeWorkEleven.Data;
 using HomeWorkEleven.Data.Ado;
+using HomeWorkEleven.Data.Models;
+using HomeWorkEleven.ModelMappers;
 using HomeWorkEleven.Models;
 using Microsoft.AspNetCore.Mvc;
 using MySqlConnector;
@@ -9,6 +11,7 @@ namespace HomeWorkEleven.Controllers;
 public class TestController : ControllerBase
 {
     private readonly IDataContext _dataContext;
+    private IProductModelMapper _productModelMapper = new ProductModelMapper();
 
     public TestController()
     {
@@ -21,6 +24,8 @@ public class TestController : ControllerBase
         };
         _dataContext = new AdoConnectedDataContext(connectionStringBuilder.ConnectionString);
     }
+
+    
 
     //Customers
     [HttpGet("customers")]
@@ -111,9 +116,11 @@ public class TestController : ControllerBase
     }
 
     [HttpPost("CreateProduct")]
-    public int CreateProduct([FromBody] ProductModel productModel)
+    public int CreateProduct([FromBody] Product productModel)
     {
-        return _dataContext.CreateProduct(productModel);
+        //return _dataContext.CreateProduct(productModel);
+        var dbProduct = _productModelMapper.MapToModel(productModel);
+        return _dataContext.CreateProduct(dbProduct);
     }
 
     [HttpPost("Update")]

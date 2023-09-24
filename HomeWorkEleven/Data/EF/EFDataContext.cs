@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using HomeWorkEleven.Data.Models;
 
 namespace HomeWorkEleven.Data.EF;
 
@@ -134,6 +135,8 @@ public class EfDataContext : DbContext, IDataContext
                 productType => productType.ToString(),
                 productType => (ProductTypeModel)Enum.Parse(typeof(ProductTypeModel), productType)
             );
+        modelBuilder.Entity<Product>().ToTable(p => p.HasCheckConstraint("price", "price>0"));
+        modelBuilder.Entity<Customer>().ToTable(p => p.HasCheckConstraint("age", "age>18"));
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

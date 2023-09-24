@@ -19,7 +19,37 @@ namespace HomeWorkEleven.Migrations
                 .HasAnnotation("ProductVersion", "7.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            modelBuilder.Entity("HomeWorkEleven.Models.Customer", b =>
+            modelBuilder.Entity("HomeWorkEleven.Data.Models.Product", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("Count")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("double");
+
+                    b.Property<int>("ProductTypeModel")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Product", t =>
+                        {
+                            t.HasCheckConstraint("price", "price>0");
+                        });
+                });
+
+            modelBuilder.Entity("HomeWorkEleven.Models.CustomerModel", b =>
                 {
                     b.Property<int>("CustomerId")
                         .ValueGeneratedOnAdd()
@@ -42,7 +72,7 @@ namespace HomeWorkEleven.Migrations
                     b.ToTable("Customers");
                 });
 
-            modelBuilder.Entity("HomeWorkEleven.Models.Order", b =>
+            modelBuilder.Entity("HomeWorkEleven.Models.OrderModel", b =>
                 {
                     b.Property<int>("OrderId")
                         .ValueGeneratedOnAdd()
@@ -80,7 +110,7 @@ namespace HomeWorkEleven.Migrations
                     b.Property<double>("Price")
                         .HasColumnType("double");
 
-                    b.Property<string>("ProductType")
+                    b.Property<string>("ProductTypeModel")
                         .IsRequired()
                         .HasColumnType("longtext");
 

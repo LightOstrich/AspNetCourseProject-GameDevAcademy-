@@ -12,6 +12,12 @@ public class TableController : Controller
     private static string[]? Title { get; set; }
     private static int Id { get; set; }
 
+    [HttpGet]
+    public string Get(string arg)
+    {
+        return arg;
+    }
+
     public TableController()
     {
         Name = new[]

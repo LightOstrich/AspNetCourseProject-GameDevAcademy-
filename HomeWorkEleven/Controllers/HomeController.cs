@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
+using System.Net;
 using HomeWorkEleven.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HomeWorkEleven.Controllers;
@@ -13,6 +15,7 @@ public class HomeController : Controller
         _logger = logger;
     }
 
+
     public IActionResult Index()
     {
         return View();
@@ -21,6 +24,11 @@ public class HomeController : Controller
     public IActionResult Privacy()
     {
         return View();
+    }
+
+    public IActionResult Authorize()
+    {
+        return View(@"/Views/Authorization/Authorize.cshtml");
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

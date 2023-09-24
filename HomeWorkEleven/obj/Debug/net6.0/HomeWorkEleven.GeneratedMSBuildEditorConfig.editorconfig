@@ -16,6 +16,10 @@ build_property.GenerateRazorMetadataSourceChecksumAttributes =
 build_property.MSBuildProjectDirectory = C:\Users\Lenovo-PC\RiderProjects\HomeWorkEleven\HomeWorkEleven
 build_property._RazorSourceGeneratorDebug = 
 
+[C:/Users/Lenovo-PC/RiderProjects/HomeWorkEleven/HomeWorkEleven/Views/Authorization/Authorize.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aG9yaXphdGlvblxBdXRob3JpemUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/Lenovo-PC/RiderProjects/HomeWorkEleven/HomeWorkEleven/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 

@@ -5,6 +5,7 @@ using HomeWorkEleven.JSONConverter.Policies;
 using HomeWorkEleven.JSONSettings.Converter;
 using HomeWorkEleven.ModelMappers;
 using HomeWorkEleven.Models.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Ocsp;
 
@@ -22,6 +23,9 @@ builder.Services.AddControllersWithViews()
         //вверъ то он не преобразует ProductType в русский язык
     });
 builder.Services.AddSwaggerGen();
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowLocalhost",
@@ -76,7 +80,7 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.Use(async (context, next) =>
+/*app.Use(async (context, next) =>
 {
     Console.WriteLine("Request");
     var body = context.Request.Body;
@@ -94,8 +98,8 @@ app.Use(async (context, next) =>
         Console.WriteLine(pair.ToString());
     }
     //context.Response.StatusCode = 404;
-});
-app.Use(async (context, next) =>
+});*/
+/*app.Use(async (context, next) =>
 {
     if (context.Request.Path == "/Table")
     {
@@ -103,8 +107,8 @@ app.Use(async (context, next) =>
     }
 
     await next.Invoke();
-});
-var singleton = app.Services.GetService<SingletonService>();
+});*/
+/*var singleton = app.Services.GetService<SingletonService>();
 singleton?.WriteWords();
 Console.WriteLine();
 
@@ -162,6 +166,6 @@ using (var scope = app.Services.CreateScope())
     word2?.WriteWord();
     transient2?.WriteWord();
     Console.WriteLine();
-}
+}*/
 
 app.Run();

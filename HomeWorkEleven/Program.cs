@@ -1,13 +1,12 @@
-using System.Text;
+using System.Security.Claims;
 using System.Text.Json.Serialization;
-using HomeWorkEleven.Data.EF;
-using HomeWorkEleven.JSONConverter.Policies;
-using HomeWorkEleven.JSONSettings.Converter;
+using HomeWorkEleven.Data.Models;
 using HomeWorkEleven.ModelMappers;
 using HomeWorkEleven.Models.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Ocsp;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +22,15 @@ builder.Services.AddControllersWithViews()
         //вверъ то он не преобразует ProductType в русский язык
     });
 builder.Services.AddSwaggerGen();
-builder.Services.AddAuthentication();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "YourCookieName";
+        options.Cookie.HttpOnly = true;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+        options.LoginPath = "/Home/Authorize"; // замените на вашу страницу входа
+        options.AccessDeniedPath = "/Authorize/AccessDenied"; // замените на вашу страницу доступа запрещена
+    });
 builder.Services.AddAuthorization();
 
 builder.Services.AddCors(options =>
@@ -73,7 +80,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseCors("AllowLocalhost");
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
@@ -167,5 +174,11 @@ using (var scope = app.Services.CreateScope())
     transient2?.WriteWord();
     Console.WriteLine();
 }*/
-
+app.Map("/admin", [Authorize(Roles = "admin")]() => "Admin Panel");
+app.Map("/", [Authorize(Roles = "admin, user")](HttpContext context) =>
+{
+    var login = context.User.FindFirst(ClaimsIdentity.DefaultNameClaimType);
+    var role = context.User.FindFirst(ClaimsIdentity.DefaultRoleClaimType);
+    return $"Name: {login?.Value}\nRole: {role?.Value}";
+});
 app.Run();

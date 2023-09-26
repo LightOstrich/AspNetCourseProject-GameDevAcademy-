@@ -1,13 +1,23 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using HomeWorkEleven.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
 namespace HomeWorkEleven.Controllers;
 
+[Route("[controller]")]
 public class AuthorizationController : Controller
 {
+    private List<User> _users = new()
+    {
+        new User("Abdullo", 25, new Role("Admin")),
+        new User("Fayzullo", 16, new Role("User")),
+        new User("Amirxon", 26, new Role("User")),
+        new User("Azizxon", 30, new Role("User")),
+    };
+
     private static string _login = "admin";
     private static string _password = "qwerty";
 
@@ -17,9 +27,11 @@ public class AuthorizationController : Controller
         // Проверка логина и пароля
         if (IsValidUser(login, password))
         {
+            var user = _users.FirstOrDefault(i => i.Name == login);
             var claims = new List<Claim>
             {
-                new(ClaimTypes.Name, login)
+                new(ClaimTypes.Name, login),
+                new(ClaimTypes.Role, user.Role.ToString())
                 // Здесь вы можете добавить дополнительные утверждения (claims), например, роль пользователя
             };
 
@@ -44,7 +56,17 @@ public class AuthorizationController : Controller
                 HttpOnly = true,
                 SameSite = SameSiteMode.Strict
             });
-            return Ok(tokenString);
+            if (user?.Role.RoleName == "Admin")
+            {
+                return Redirect("/Table/Index");
+            }
+
+            if (user.Age < 18)
+            {
+                
+            }
+            return Redirect("/Home");
+           
         }
 
         return NotFound();
@@ -52,6 +74,6 @@ public class AuthorizationController : Controller
 
     private bool IsValidUser(string login, string password)
     {
-        return login == _login && password == _password;
+        return true;
     }
 }
